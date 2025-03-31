@@ -1,0 +1,59 @@
+// Example/default ACLs for unrestricted connections.
+{
+	// Define access control lists for users, groups, autogroups, tags,
+	// Tailscale IP addresses, and subnet ranges.
+	"acls": [
+		{
+			"action": "accept",
+			"src":    ["tag:client", "tag:server", "acedanger49@gmail.com"],
+			"dst":    ["tag:golink:*", "tag:server:*"],
+		},
+		// Allow all connections.
+		// Comment this section out if you want to define specific restrictions.
+		{"action": "accept", "src": ["*"], "dst": ["*:*"]},
+	],
+
+	// Define users and devices that can use Tailscale SSH.
+	"ssh": [
+		{
+			// any user can use Tailscale SSH to connect to their own devices
+			// in check mode as a root or non-root user
+			"action": "accept",
+			"src":    ["tag:client", "tag:server", "acedanger49@gmail.com"],
+			"dst":    ["tag:server"],
+			"users":  ["autogroup:nonroot", "root"],
+		},
+		{
+			// any user can use Tailscale SSH to connect to their own devices
+			// in check mode as a root or non-root user
+			"action": "check",
+			"src":    ["autogroup:member"],
+			"dst":    ["autogroup:self"],
+			"users":  ["autogroup:nonroot", "root"],
+		},
+	],
+
+	"nodeAttrs": [
+		{
+			// Funnel policy, which lets tailnet members control Funnel
+			// for their own devices.
+			// Learn more at https://tailscale.com/kb/1223/tailscale-funnel/
+			"target": ["autogroup:member"],
+			"attr":   ["funnel"],
+		},
+		{"target": ["*"], "app": {"tailscale.com/app-connectors": []}},
+	],
+
+	// Define the tags which can be applied to devices and by which users.
+	"tagOwners": {
+		"tag:golink": ["acedanger49@gmail.com"],
+		"tag:server": ["acedanger49@gmail.com"],
+		"tag:client": ["acedanger49@gmail.com"],
+		"tag:docker": ["acedanger49@gmail.com"],
+	},
+
+	"autoapprovers": {
+		"exitNode": ["autogroup:admin"],
+	},
+	// Test access rules every time they're saved.
+}
