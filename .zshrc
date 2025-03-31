@@ -46,7 +46,7 @@ HYPHEN_INSENSITIVE="true"
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting docker docker-compose you-should-use)
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting docker docker-compose you-should-use z ssh)
 
 export ZSH_COMPDUMP=$ZSH/cache/.zcompdump-$HOST
 source $ZSH/oh-my-zsh.sh
@@ -86,3 +86,4 @@ export NVM_DIR="$HOME/.nvm"
 [[ -s /home/acedanger/.autojump/etc/profile.d/autojump.sh ]] && source /home/acedanger/.autojump/etc/profile.d/autojump.sh autoload -U compinit && compinit -u
 
 eval "$(zoxide init zsh)"
+
