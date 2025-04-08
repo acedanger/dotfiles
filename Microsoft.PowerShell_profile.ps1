@@ -7,10 +7,11 @@ function Install-CustomModules {
   )
   # check if module is installed
   $moduleInfo = Get-Module -ListAvailable -Name $ModuleName -ErrorAction SilentlyContinue
-  if (-not $moduleInfo) {
-    Write-Host "${ModuleName} module not found." -ForegroundColor Red
-    Install-Module -Name $ModuleName -Scope CurrentUser
-  }
+  if ($moduleInfo) { return }
+
+  Write-Host "${ModuleName} module not found." -ForegroundColor Red
+  Install-Module -Name $ModuleName -Scope CurrentUser
+  
   Import-Module -Name $ModuleName
 }
 
