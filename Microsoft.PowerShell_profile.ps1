@@ -1,26 +1,27 @@
-if (-not (Get-Module -ListAvailable -Name tiPS)) {
-  Install-Module -Name tiPS -Scope CurrentUser
-}
-if (-not (Get-Module -ListAvailable -Name PSScriptAnalyzer)) {
-  Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
-}
-if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
-  Install-Module -Name Terminal-Icons -Scope CurrentUser
-}
-if (-not (Get-Module -ListAvailable -Name PSReadLine)) {
-  Install-Module -Name PSReadLine -Force -Scope CurrentUser
+# 
+$canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
+
+function Install-CustomModules {
+  param (
+    [string]$ModuleName = ''
+  )
+  # check if module is installed
+  $moduleInfo = Get-Module -ListAvailable -Name $ModuleName -ErrorAction SilentlyContinue
+  if (-not $moduleInfo) {
+    Write-Host "${ModuleName} module not found." -ForegroundColor Red
+    Install-Module -Name $ModuleName -Scope CurrentUser
+  }
+  Import-Module -Name $ModuleName
 }
 
-
-if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
-  Import-Module -Name Terminal-Icons
-}
-if (-not (Get-Module -ListAvailable -Name PSReadLine)) {
-  Import-Module -Name PSReadLine
-}
+Install-CustomModules -ModuleName 'tiPS'
+Install-CustomModules -ModuleName 'PSScriptAnalyzer'
+Install-CustomModules -ModuleName 'Terminal-Icons'
+Install-CustomModules -ModuleName 'PSReadLine'
+Install-CustomModules -ModuleName 'PSWindowsUpdate'
 
 # kali.omp.json
-oh-my-posh --init --shell pwsh --config "$env:OneDrive\Documents\PowerShell\prompt\themes\easy-term.omp.json" | Invoke-Expression
+oh-my-posh --init --shell pwsh --config "$env:OneDrive\Documents\PowerShell\prompt\themes\stelbent-compact.minimal.omp.json" | Invoke-Expression
 
 Set-PSReadLineOption -PredictionSource History
 Set-PSReadLineOption -PredictionViewStyle ListView
@@ -44,7 +45,7 @@ Set-Alias getIp Get-Ip-Address
 
 function Invoke-WslReboot() {
   param (
-    [string]$Distro = 'Ubuntu'
+    [string]$Distro = 'Debian'
   )
   Write-Host "Rebooting $Distro"
   wsl --shutdown
@@ -87,19 +88,22 @@ else {
 
 Set-TiPSConfiguration -AutomaticallyWritePowerShellTip EverySession
 
+# Finds files recursively matching a pattern.
 function ff($name) {
   Get-ChildItem -Recurse -Filter "*${name}*" -ErrorAction SilentlyContinue | ForEach-Object { Write-Output "${$_.directory}\$(%_)" }
 }
 
+# Creates an empty file (similar to the touch command in Linux).
 function touch($file) {
   "" | Out-File -File $file -Encoding ascii
 }
 
-function reload-profile {
+# Reloads the current profile.
+function Update-Profile {
   & $PROFILE
 }
 
-
+# Checks for and updates PowerShell to the latest version.
 function Update-PowerShell {
   if (-not $global:canConnectToGitHub) {
     Write-Host "Skipping PowerShell update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
@@ -132,6 +136,7 @@ function Update-PowerShell {
 }
 Update-PowerShell
 
+# Searches for a regular expression in files (similar to the grep command in Linux).
 function grep($regex, $dir) {
   if ( $dir ) {
     Get-ChildItem $dir | select-string $regex
@@ -140,28 +145,36 @@ function grep($regex, $dir) {
   $input | select-string $regex
 }
 
+# Displays disk volume information.
 function df {
   get-volume
 }
 
+# Displays the first n lines of a file8587
 function head {
   param($Path, $n = 10)
   Get-Content $Path -Head $n
 }
 
+# Displays the last n lines of a file 
 function tail {
   param($Path, $n = 10)
   Get-Content $Path -Tail $n
 }
 
+# Navigates to the Documents directory.
 function docs { Set-Location -Path $HOME\Documents }
 
-# Networking Utilities
+# Navigates to the Downloads directory.
+function dl { Set-Location -Path $HOME\Downloads }
+
+# Clears the DNS client cache.
 function flushdns { Clear-DnsClientCache }
 
-# Clipboard Utilities
+# Copies text to the clipboard.
 function cpy { Set-Clipboard $args[0] }
 
+# Gets the text from the clipboard.
 function pst { Get-Clipboard }
 
 # Enhanced PowerShell Experience
