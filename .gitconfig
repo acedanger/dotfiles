@@ -1,0 +1,10 @@
+[user]
+	email = peter@peterwood.dev
+	name = Peter Wood
+[pull]
+	rebase = false
+[init]
+	defaultBranch = main
+[core]
+	autocrlf = input
+	eol = lf
