@@ -51,6 +51,9 @@ plugins=(git zsh-autosuggestions zsh-syntax-highlighting docker docker-compose y
 export ZSH_COMPDUMP=$ZSH/cache/.zcompdump-$HOST
 source $ZSH/oh-my-zsh.sh
 
+# Initialize zoxide
+eval "$(zoxide init zsh)"
+
 # User configuration
 # export MANPATH="/usr/local/man:$MANPATH"
 
@@ -72,6 +75,11 @@ source $ZSH/oh-my-zsh.sh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 # For a full list of active aliases, run `alias`.
 
+# Load custom aliases
+if [ -f "$ZSH_CUSTOM/aliases.zsh" ]; then
+    source "$ZSH_CUSTOM/aliases.zsh"
+fi
+
 # set directory to home
 cd ~
 
@@ -79,8 +87,27 @@ if [ -x /usr/games/cowsay -a -x /usr/games/fortune -a -x /usr/games/lolcat ]; th
     fortune -s | cowsay | lolcat
 fi
 
+# NVM configuration
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# Automatically use node version specified in .nvmrc if present
+autoload -U add-zsh-hook
+load-nvmrc() {
+  local nvmrc_path="$(nvm_find_nvmrc)"
+  if [ -n "$nvmrc_path" ]; then
+    local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
+    if [ "$nvmrc_node_version" = "N/A" ]; then
+      nvm install
+    elif [ "$nvmrc_node_version" != "$(nvm version)" ]; then
+      nvm use
+    fi
+  elif [ -n "$(PWD=$OLDPWD nvm_find_nvmrc)" ] && [ "$(nvm version)" != "$(nvm version default)" ]; then
+    nvm use default
+  fi
+}
+add-zsh-hook chpwd load-nvmrc
+load-nvmrc
 
 [[ -s /home/acedanger/.autojump/etc/profile.d/autojump.sh ]] && source /home/acedanger/.autojump/etc/profile.d/autojump.sh autoload -U compinit && compinit -u
